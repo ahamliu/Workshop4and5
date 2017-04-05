@@ -103,12 +103,31 @@ export function postComment(feedItemId, author, contents, cb) {
   feedItem.comments.push({
     "author": author,
     "contents": contents,
-    "postDate": new Date().getTime()
+    "postDate": new Date().getTime(),
+    "likeCounter": []
   });
   writeDocument('feedItems', feedItem);
   // Return a resolved version of the feed item so React can
   // render it.
   emulateServerReturn(getFeedItemSync(feedItemId), cb);
+}
+
+export function likeComment(feedItemId, commentIndex, userId){
+  console.log(commentIndex)
+  var feedItem = readDocument('feedItems', feedItemId);
+  var comment = feedItem.comments[commentIndex];
+  comment.likeCounter.push(userId)
+  writeDocument('feedItems', feedItem);
+  return comment;
+}
+
+export function unlikeComment(feedItemId, commentIndex, userId){
+  var feedItem = readDocument('feedItems', feedItemId);
+  var comment = feedItem.comments[commentIndex];
+  var endmeIndex = comment.likeCounter.indexOf(userId);
+  comment.likeCounter.splice(endmeIndex,1)
+  writeDocument('feedItems', feedItem);
+  return comment;
 }
 /**
  * Updates a feed item's likeCounter by adding the user to the likeCounter.
